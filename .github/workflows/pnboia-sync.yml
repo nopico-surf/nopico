@@ -1,62 +1,61 @@
 ---
 
-3️⃣ No campo "Name your file...", digitar EXATAMENTE:
+📋 INSTRUÇÕES PARA CORRIGIR NO GITHUB:
+
+1️⃣ Abrir o arquivo com erro:
 
 ```
-.github/workflows/pnboia-sync.yml
+https://github.com/nopico-surf/nopico/blob/main/.github/workflows/pnboia-sync.yml
 ```
 
-IMPORTANTE: 
-✅ Começar com ponto (.)
-✅ Quando digitar `.github/`, o GitHub criará a pasta automaticamente!
-✅ Continue digitando `workflows/pnboia-sync.yml`
+2️⃣ Clicar no ícone de LÁPIS (Edit file)
 
----
+3️⃣ DELETAR TODO o conteúdo
 
-4️⃣ Copiar e colar este código completo:
+4️⃣ COPIAR e COLAR este código limpo:
 
 ```yaml
 name: PNBOIA Auto Sync
 
-═══════════════════════════════════════════════════════════════════════════
-CRON JOB AUTOMÁTICO - SINCRONIZAÇÃO PNBOIA 24/7
-═══════════════════════════════════════════════════════════════════════════
+===========================================================================
+CRON JOB AUTOMATICO - SINCRONIZACAO PNBOIA 24/7
+===========================================================================
 #
 Este workflow garante que as boias PNBOIA sejam sincronizadas SEMPRE,
-mesmo quando não há usuários visitando o site.
+mesmo quando nao ha usuarios visitando o site.
 #
-Frequência: A cada 3 horas (alinhado com atualização das boias)
-Horários: 00:00, 03:00, 06:00, 09:00, 12:00, 15:00, 18:00, 21:00 UTC
+Frequencia: A cada 3 horas (alinhado com atualizacao das boias)
+Horarios: 00:00, 03:00, 06:00, 09:00, 12:00, 15:00, 18:00, 21:00 UTC
 #
-Benefícios:
-- Dados sempre frescos (surfista às 6 AM tem dados atualizados)
+Beneficios:
+- Dados sempre frescos (surfista as 6 AM tem dados atualizados)
 - Edge Function nunca "dorme"
-- Independente de tráfego do site
+- Independente de trafego do site
 - Resiliente a falhas (tenta novamente em 3h)
 #
-═══════════════════════════════════════════════════════════════════════════
+===========================================================================
 
 on:
-  # Executa a cada 3 horas (cron: min hora dia mês dia-da-semana)
+  # Executa a cada 3 horas (cron: min hora dia mes dia-da-semana)
   schedule:
 cron: '0 */3 * * *'  # A cada 3 horas: 00:00, 03:00, 06:00, etc (UTC)
   
-  # Permite execução manual via GitHub UI (útil para testes)
+  # Permite execucao manual via GitHub UI (util para testes)
   workflow_dispatch:
 
 jobs:
   sync-pnboia:
     name: Sincronizar Boias PNBOIA
     runs-on: ubuntu-latest
-    timeout-minutes: 5  # Timeout de 5 minutos (sincronização demora ~1-2 min)
+    timeout-minutes: 5  # Timeout de 5 minutos (sincronizacao demora ~1-2 min)
     
     steps:
-name: 🌊 Sincronizar todas as boias
+name: Sincronizar todas as boias
         run: |
-          echo "🌊 Iniciando sincronização PNBOIA..."
-          echo "⏰ Horário: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "Iniciando sincronizacao PNBOIA..."
+          echo "Horario: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
           
-          # Disparar sincronização no servidor
+          # Disparar sincronizacao no servidor
           response=$(curl -X POST \
             -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
             -H "Content-Type: application/json" \
@@ -69,39 +68,39 @@ name: 🌊 Sincronizar todas as boias
           http_body=$(echo "$response" | head -n -1)
           http_code=$(echo "$response" | tail -n 1)
           
-          echo "📥 Status HTTP: $http_code"
-          echo "📦 Resposta: $http_body"
+          echo "Status HTTP: $http_code"
+          echo "Resposta: $http_body"
           
           # Verificar sucesso
           if [ "$http_code" -eq 200 ]; then
-            echo "✅ Sincronização concluída com sucesso!"
+            echo "Sincronizacao concluida com sucesso!"
             
-            # Extrair estatísticas (se possível)
+            # Extrair estatisticas (se possivel)
             success_count=$(echo "$http_body" | grep -o '"success":[0-9]' | grep -o '[0-9]' || echo "?")
             total_count=$(echo "$http_body" | grep -o '"total":[0-9]' | grep -o '[0-9]' || echo "?")
             
-            echo "📊 Resultado: $success_count/$total_count boias sincronizadas"
+            echo "Resultado: $success_count/$total_count boias sincronizadas"
           else
-            echo "⚠️ Sincronização retornou status $http_code"
-            echo "ℹ️ Isso pode acontecer se:"
-            echo "   - Boias PNBOIA estão offline (normal)"
-            echo "   - Servidor Supabase está lento"
+            echo "Sincronizacao retornou status $http_code"
+            echo "Isso pode acontecer se:"
+            echo "   - Boias PNBOIA estao offline (normal)"
+            echo "   - Servidor Supabase esta lento"
             echo "   - Timeout excedido"
             echo ""
-            echo "🔄 Próxima tentativa em 3 horas"
+            echo "Proxima tentativa em 3 horas"
             
-            # Não falhar o workflow - é normal ter falhas ocasionais
-            # O sistema continuará tentando a cada 3 horas
+            # Nao falhar o workflow - e normal ter falhas ocasionais
+            # O sistema continuara tentando a cada 3 horas
           fi
           
           echo ""
-          echo "🎯 Próxima sincronização: $(date -u -d '+3 hours' '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "Proxima sincronizacao: $(date -u -d '+3 hours' '+%Y-%m-%d %H:%M:%S UTC')"
 
-name: 📊 Verificar status das boias
+name: Verificar status das boias
         if: success() || failure()  # Sempre executar, mesmo se passo anterior falhar
         run: |
           echo ""
-          echo "🔍 Verificando status atual das boias..."
+          echo "Verificando status atual das boias..."
           
           status_response=$(curl -X GET \
             -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
@@ -114,7 +113,7 @@ name: 📊 Verificar status das boias
           status_code=$(echo "$status_response" | tail -n 1)
           
           if [ "$status_code" -eq 200 ]; then
-            echo "📊 Status obtido com sucesso:"
+            echo "Status obtido com sucesso:"
             echo "$status_body" | python3 -m json.tool 2>/dev/null || echo "$status_body"
             
             # Extrair boias ativas
@@ -122,35 +121,35 @@ name: 📊 Verificar status das boias
             total=$(echo "$status_body" | grep -o '"total":[0-9]' | grep -o '[0-9]' || echo "14")
             
             echo ""
-            echo "✅ Boias ativas: $active/$total"
+            echo "Boias ativas: $active/$total"
             
             if [ "$active" -ge 10 ]; then
-              echo "🟢 Status excelente! Maioria das boias online."
+              echo "Status excelente! Maioria das boias online."
             elif [ "$active" -ge 5 ]; then
-              echo "🟡 Status bom! Algumas boias offline."
+              echo "Status bom! Algumas boias offline."
             else
-              echo "🔴 Status degradado! Poucas boias online (pode ser normal à noite)."
+              echo "Status degradado! Poucas boias online (pode ser normal a noite)."
             fi
           else
-            echo "⚠️ Não foi possível obter status (HTTP $status_code)"
-            echo "   Sistema continuará funcionando normalmente"
+            echo "Nao foi possivel obter status (HTTP $status_code)"
+            echo "   Sistema continuara funcionando normalmente"
           fi
 
-name: 📝 Resumo
+name: Resumo
         if: always()  # Sempre executar
         run: |
           echo ""
-          echo "════════════════════════════════════════════════════════════"
-          echo "🌊 RESUMO DA SINCRONIZAÇÃO PNBOIA"
-          echo "════════════════════════════════════════════════════════════"
-          echo "⏰ Concluído em: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
-          echo "🔄 Próxima execução: $(date -u -d '+3 hours' '+%H:%M UTC')"
-          echo "📅 Frequência: A cada 3 horas (8x por dia)"
-          echo "════════════════════════════════════════════════════════════"
+          echo "============================================================"
+          echo "RESUMO DA SINCRONIZACAO PNBOIA"
+          echo "============================================================"
+          echo "Concluido em: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "Proxima execucao: $(date -u -d '+3 hours' '+%H:%M UTC')"
+          echo "Frequencia: A cada 3 horas (8x por dia)"
+          echo "============================================================"
           echo ""
-          echo "💡 DICAS:"
-          echo "   • Para ver logs: GitHub → Actions → PNBOIA Auto Sync"
-          echo "   • Para executar manualmente: Actions → PNBOIA Auto Sync → Run workflow"
-          echo "   • Para pausar: Settings → Actions → Disable workflow"
+          echo "DICAS:"
+          echo "   - Para ver logs: GitHub -> Actions -> PNBOIA Auto Sync"
+          echo "   - Para executar manualmente: Actions -> PNBOIA Auto Sync -> Run workflow"
+          echo "   - Para pausar: Settings -> Actions -> Disable workflow"
           echo ""
 ```
