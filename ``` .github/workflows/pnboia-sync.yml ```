@@ -1,0 +1,67 @@
+🎯 PERFEITO! Você já está quase lá!
+
+Vejo que você está em uma tela de edição! Vejo os botões:
+"Cancel changes" 
+"Commit changes" (verde)
+
+---
+
+✅ AGORA FAÇA ISTO:
+
+1. Procure o campo "Name your file..." no TOPO da tela
+
+Role para cima (scroll up) e procure um campo que diz:
+
+```
+┌─────────────────────────────────────────┐
+│ Name your file...                       │
+│ [                                     ] │
+└─────────────────────────────────────────┘
+```
+
+2. Digite EXATAMENTE isto neste campo:
+
+```
+.github/workflows/pnboia-sync.yml
+```
+
+IMPORTANTE: Não esqueça o ponto `.` no início!
+
+---
+
+📋 DEPOIS:
+
+3. Role para baixo e procure o editor de texto grande
+
+Cole este código:
+
+```yaml
+name: 'PNBOIA Auto-Sync'
+
+on:
+  schedule:
+cron: '0 */3 * * *'
+  workflow_dispatch:
+
+jobs:
+  sync-pnboia:
+    runs-on: ubuntu-latest
+    
+    steps:
+name: '🌊 Sincronizar dados PNBOIA'
+        run: |
+          echo "🔄 Iniciando sincronização PNBOIA..."
+          
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            "https://rqgubpqniscyoojkwltn.supabase.co/functions/v1/make-server-2d5da22b/pnboia/sync-all"
+          
+          echo "✅ Sincronização concluída!"
+      
+name: '📊 Verificar status'
+        run: |
+          echo "📡 Verificando status das boias..."
+          
+          curl -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            "https://rqgubpqniscyoojkwltn.supabase.co/functions/v1/make-server-2d5da22b/pnboia/status"
+```
